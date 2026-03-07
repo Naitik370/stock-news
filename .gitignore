@@ -1,0 +1,9 @@
+.env
+.kite_session
+.kite_session.tmp
+seen_news.json
+seen_news.json.tmp
+news_log.csv
+__pycache__/
+*.pyc
+venv/
