@@ -4,6 +4,10 @@
 seen_news.json
 seen_news.json.tmp
 news_log.csv
+muted_stocks.json
+muted_stocks.json.tmp
+watchlist.json
+watchlist.json.tmp
 __pycache__/
 *.pyc
 venv/

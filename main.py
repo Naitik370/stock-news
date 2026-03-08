@@ -11,7 +11,8 @@ from datetime import datetime, timezone, timedelta
 from rich.console import Console
 from rich.table import Table
 
-from stock_news import config, dedup, holdings, news, news_logger, notifier, portfolio
+from stock_news import config, dedup, holdings, news, news_logger, notifier, portfolio, watchlist
+from stock_news.ai_summary import enrich_articles
 from stock_news.kite_auth import get_kite_client, is_token_valid
 
 console = Console()
@@ -115,6 +116,13 @@ def run_cycle(use_mock: bool = False, force_summary: bool = False):
             notifier.send_error_alert(f"Holdings fetch failed: {e}")
             return
 
+    # --- Step 2b: Merge watchlist stocks ---
+    wl_holdings = watchlist.get_as_holdings()
+    existing_symbols = {h["symbol"].upper() for h in stock_holdings}
+    for wh in wl_holdings:
+        if wh["symbol"].upper() not in existing_symbols:
+            stock_holdings.append(wh)
+
     # --- Step 3: Portfolio summary ---
     portfolio_text = ""
     today_str = now.strftime("%Y-%m-%d")
@@ -149,6 +157,12 @@ def run_cycle(use_mock: bool = False, force_summary: bool = False):
     new_count = sum(len(v) for v in new_articles.values())
     console.print(f"  New articles: {new_count}")
 
+    # --- Step 5b: AI Enrichment ---
+    if config.GEMINI_API_KEY:
+        console.print("\n[bold]🧠 Analyzing with AI...[/bold]")
+        enrich_articles(new_articles)
+        console.print("[dim]  AI sentiment + summaries added.[/dim]")
+
     # --- Step 6: Display ---
     _print_news_table(new_articles)
 
@@ -176,6 +190,7 @@ def main():
     parser.add_argument("--setup", action="store_true", help="Get your Telegram chat_id")
     parser.add_argument("--reset-seen", action="store_true", help="Clear dedup history")
     parser.add_argument("--summary", action="store_true", help="Force portfolio summary")
+    parser.add_argument("--bot", action="store_true", help="Start interactive Telegram bot mode")
     args = parser.parse_args()
 
     # --- Setup mode ---
@@ -188,6 +203,21 @@ def main():
     # --- Reset dedup ---
     if args.reset_seen:
         dedup.reset()
+        return
+
+    # --- Bot mode ---
+    if args.bot:
+        from stock_news.bot import run_bot
+
+        kite_client = None
+        if not args.mock:
+            console.print("\n[bold]🔐 Authenticating with Kite...[/bold]")
+            kite_client = get_kite_client()
+            if not kite_client:
+                console.print("[yellow]Kite auth failed. Running bot with mock data.[/yellow]")
+                args.mock = True
+
+        run_bot(use_mock=args.mock, kite_client=kite_client)
         return
 
     # --- Authenticate with Kite (unless mock) ---

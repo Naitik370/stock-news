@@ -16,9 +16,16 @@ KITE_TOTP_SECRET = os.getenv("KITE_TOTP_SECRET", "")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
+# --- Gemini AI ---
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
 # --- Scheduling ---
 SCHEDULE_INTERVAL_MINUTES = int(os.getenv("SCHEDULE_INTERVAL_MINUTES", "15"))
 MARKET_HOURS_ONLY = os.getenv("MARKET_HOURS_ONLY", "true").lower() == "true"
+
+# --- Price Alerts ---
+PRICE_ALERT_PCT = float(os.getenv("PRICE_ALERT_PCT", "3.0"))
+PRICE_CHECK_INTERVAL = int(os.getenv("PRICE_CHECK_INTERVAL", "5"))  # minutes
 
 # --- News ---
 NEWS_MAX_ARTICLES = int(os.getenv("NEWS_MAX_ARTICLES", "3"))
@@ -47,3 +54,5 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KITE_SESSION_FILE = os.path.join(BASE_DIR, ".kite_session")
 SEEN_NEWS_FILE = os.path.join(BASE_DIR, "seen_news.json")
 NEWS_LOG_FILE = os.path.join(BASE_DIR, "news_log.csv")
+MUTED_STOCKS_FILE = os.path.join(BASE_DIR, "muted_stocks.json")
+WATCHLIST_FILE = os.path.join(BASE_DIR, "watchlist.json")

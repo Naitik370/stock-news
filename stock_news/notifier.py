@@ -107,7 +107,8 @@ def format_news_message(
         lines.append(f"🔹 <b>{symbol}</b>")
 
         for article in articles:
-            emoji = article.get("priority_emoji", "⚪")
+            # Use AI sentiment emoji if available, else priority emoji
+            emoji = article.get("ai_sentiment_emoji", article.get("priority_emoji", "⚪"))
             title = _escape_html(article.get("title", ""))
             source = _escape_html(article.get("source", ""))
             url = article.get("url", "")
@@ -115,6 +116,12 @@ def format_news_message(
 
             lines.append(f"{emoji} • {title}")
             lines.append(f"    — {source} | {pub_time}")
+
+            # AI-generated summary
+            ai_summary = article.get("ai_summary", "")
+            if ai_summary:
+                lines.append(f"    💡 <i>{_escape_html(ai_summary)}</i>")
+
             if url:
                 lines.append(f'    🔗 <a href="{url}">Read more</a>')
             lines.append("")

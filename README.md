@@ -9,6 +9,9 @@ Real-time stock news alerts for your Zerodha Kite portfolio, delivered to Telegr
 - 🔴🟡⚪ **Priority Scoring** — Urgent/Important/Normal tags on headlines
 - 📊 **Portfolio P&L** — Daily summary with top gainer/loser
 - 🔔 **Telegram Notifications** — Rich formatted alerts with links
+- 🤖 **Interactive Bot** — `/portfolio`, `/news`, `/stocks`, `/mute`, `/watch` commands
+- 🧠 **AI Summaries** — Sentiment tags (🐂/🐻/😐) + TL;DR via Gemini
+- 🚀 **Price Spike Alerts** — Auto-detects fast moves (±3%) every 5 mins
 - 🔄 **Deduplication** — Only sends genuinely new articles
 - 📝 **CSV Logging** — Local history in `news_log.csv`
 - ⏰ **Scheduler** — Runs every 15 min during market hours (Mon–Fri 9–4 IST)
@@ -69,6 +72,7 @@ This will:
 
 | Flag | Description |
 |---|---|
+| `--bot` | Start interactive Telegram bot mode |
 | `--once` | Run one cycle and exit |
 | `--mock` | Use sample holdings (no Kite needed) |
 | `--setup` | Get your Telegram chat_id |
@@ -92,6 +96,34 @@ This will:
 | `NEWS_MAX_AGE_HOURS` | Only news newer than X hours | `1` |
 | `EXTRA_STOCKS` | Additional stocks (comma-separated) | — |
 | `MUTE_STOCKS` | Stocks to ignore (comma-separated) | — |
+| `GEMINI_API_KEY` | Google Gemini API key (optional, for AI summaries) | — |
+| `PRICE_ALERT_PCT` | Threshold for price spike/drop alerts (%) | `3.0` |
+| `PRICE_CHECK_INTERVAL`| How often to check for price spikes (mins) | `5` |
+
+## Bot Mode (Interactive)
+
+Start the interactive bot to send commands from Telegram:
+
+```bash
+python main.py --bot          # live Kite data
+python main.py --bot --mock   # mock portfolio (no Kite needed)
+```
+
+| Command | Description |
+|---|---|
+| `/start` | Welcome message |
+| `/help` | List all commands |
+| `/portfolio` | Instant P&L snapshot |
+| `/stocks` | List your portfolio symbols |
+| `/news <SYMBOL>` | Latest news for a stock (e.g. `/news RELIANCE`) |
+| `/mute <SYMBOL>` | Mute a stock from alerts |
+| `/unmute <SYMBOL>` | Unmute a stock |
+| `/muted` | Show muted stocks |
+| `/watch <SYMBOL>` | Add stock to alert watchlist |
+| `/unwatch <SYMBOL>` | Remove from watchlist |
+| `/watchlist` | Show watchlisted stocks |
+
+The bot also pushes scheduled news alerts automatically (same as push mode).
 
 ## Files Generated
 
@@ -100,6 +132,8 @@ This will:
 | `.kite_session` | Cached Kite access token (auto-managed) |
 | `seen_news.json` | Dedup tracking (auto-pruned after 7 days) |
 | `news_log.csv` | History of all sent articles |
+| `muted_stocks.json` | Stocks muted via bot commands |
+| `watchlist.json` | Alert watchlist stocks |
 
 ## Important Notes
 
